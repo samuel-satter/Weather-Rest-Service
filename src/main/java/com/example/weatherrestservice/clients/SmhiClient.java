@@ -1,17 +1,15 @@
-package com.example.weatherrestservice;
+package com.example.weatherrestservice.clients;
 
 import com.example.weatherrestservice.smhi.SmhiWebservice;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-@Configuration
-public class Runnable implements CommandLineRunner {
+@Service
+public class SmhiClient {
+    public WebClient client = WebClient.create();
 
-    WebClient client = WebClient.create();
-
-    public SmhiWebservice getSmhiInfo() {
+    public SmhiWebservice getDataFromSmhi() {
         Mono<SmhiWebservice> mono = client
                 .get()
                 .uri("https://opendata-download-metfcst.smhi.se/api/category/pmp3g/version/2/geotype/point/lon/18.0300/lat/59.3110/data.json")
@@ -20,8 +18,4 @@ public class Runnable implements CommandLineRunner {
         return mono.block();
     }
 
-    @Override
-    public void run(String... args) throws Exception {
-
-    }
 }
