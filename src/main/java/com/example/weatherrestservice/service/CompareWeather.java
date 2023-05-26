@@ -3,6 +3,7 @@ package com.example.weatherrestservice.service;
 
 import com.example.weatherrestservice.clients.MetClient;
 import com.example.weatherrestservice.clients.SmhiClient;
+import com.example.weatherrestservice.entities.MetEntity;
 import com.example.weatherrestservice.entities.SmhiEntity;
 import com.example.weatherrestservice.entities.WeatherEntity;
 import com.example.weatherrestservice.met.MetWeatherService;
@@ -26,6 +27,8 @@ import java.util.Optional;
 public class CompareWeather {
 
     private SmhiEntity smhiEntity;
+
+    private MetEntity metEntity;
 
     String bestSource;
 
@@ -53,23 +56,31 @@ public class CompareWeather {
 
         List<TimeSeries> timeSeriesList = smhiWebservice.getTimeSeries().stream().filter(timeSeries -> getDateTime(timeSeries.getValidTime()).isAfter(targetTime)).toList();
         Optional<Parameter> parameterTemperature = timeSeriesList.get(0).getParameters().stream().filter(parameter -> parameter.getName().equals("t")).findFirst();
-        int temperature = 0;
+        int smhiTemperature = 0;
         if (parameterTemperature.isPresent()) {
-            temperature = parameterTemperature.get().getValues().get(0);
+            smhiTemperature = parameterTemperature.get().getValues().get(0);
         }
 
         Optional<Parameter> parameterHumidity = timeSeriesList.get(0).getParameters().stream().filter(parameter -> parameter.getName().equals("r")).findFirst();
-        int humidity = 0;
+        int smhiHumidity = 0;
         if (parameterHumidity.isPresent()) {
-            humidity = parameterHumidity.get().getValues().get(0);
+            smhiHumidity = parameterHumidity.get().getValues().get(0);
         }
 
 
         MetWeatherService metWeatherService = metClient.getDataFromMet();
-        List<Properties> metTimeseriesList =  metWeatherService
-//        ((LinkedHashMap) properties.additionalProperties.get("properties")).get("timeseries")
+        List<Timeseries> timeseriesList = metWeatherService.getProperties().getTimeseries().stream().filter(timeseries -> getDateTime(timeseries.getTime()).isAfter(targetTime)).toList();
+        Double metTemperature = timeseriesList.get(0).getData().getInstant().getDetails().getAirTemperature();
+        Double metHumidity = timeseriesList.get(0).getData().getInstant().getDetails().getRelativeHumidity();
 
-    return smhiEntity;
+        if (smhiTemperature > metTemperature) {
+            bestSource = "SMHI";
+            return smhiEntity;
+        } else {
+            bestSource = "MET";
+            return metEntity;
+        }
+
     }
 
 }
