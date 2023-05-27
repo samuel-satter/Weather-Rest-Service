@@ -10,8 +10,6 @@ import com.example.weatherrestservice.entities.SmhiEntity;
 import com.example.weatherrestservice.entities.WeatherEntity;
 import com.example.weatherrestservice.met.MetWeatherService;
 import com.example.weatherrestservice.met.Timeseries;
-import com.example.weatherrestservice.meteo.Hourly;
-import com.example.weatherrestservice.meteo.HourlyUnits;
 import com.example.weatherrestservice.meteo.Meteo;
 import com.example.weatherrestservice.smhi.Parameter;
 import com.example.weatherrestservice.smhi.SmhiWebservice;
@@ -28,7 +26,7 @@ import java.util.Optional;
 
 @Service
 @Data
-public class CompareWeather {
+public class WeatherInformationService {
 
     private SmhiEntity smhiEntity;
 
@@ -44,8 +42,8 @@ public class CompareWeather {
 
     String bestSource;
 
-   @Autowired
-    public CompareWeather(SmhiClient smhiClient, MetClient metClient, MeteoClient meteoClient) {
+    @Autowired
+    public WeatherInformationService(SmhiClient smhiClient, MetClient metClient, MeteoClient meteoClient) {
         this.smhiClient = smhiClient;
         this.metClient = metClient;
         this.meteoClient = meteoClient;
@@ -56,12 +54,20 @@ public class CompareWeather {
         return LocalDateTime.parse(time, DateTimeFormatter.ISO_DATE_TIME);
     }
 
-    public WeatherEntity getBestWeatherReport() {
-        bestSource = "SMHI";
-        SmhiWebservice smhiWebservice = smhiClient.getDataFromSmhi();
+    public void addTargetTime() {
+
         LocalDateTime targetTime = LocalDateTime.now().plusDays(1);
 
+        getSmhiReport(targetTime);
 
+        getMetReport(targetTime);
+
+        getMeteoReport(targetTime);
+
+    }
+
+    private WeatherEntity getSmhiReport(LocalDateTime targetTime) {
+        SmhiWebservice smhiWebservice = smhiClient.getDataFromSmhi();
         List<TimeSeries> timeSeriesList = smhiWebservice.getTimeSeries().stream().filter(timeSeries -> getDateTime(timeSeries.getValidTime()).isAfter(targetTime)).toList();
         Optional<Parameter> parameterTemperature = timeSeriesList.get(0).getParameters().stream().filter(parameter -> parameter.getName().equals("t")).findFirst();
         int smhiTemperature = 0;
@@ -74,34 +80,41 @@ public class CompareWeather {
         if (parameterHumidity.isPresent()) {
             smhiHumidity = parameterHumidity.get().getValues().get(0);
         }
+        return smhiEntity;
+    }
 
-
+    private WeatherEntity getMetReport(LocalDateTime targetTime) {
         MetWeatherService metWeatherService = metClient.getDataFromMet();
         List<Timeseries> timeseriesList = metWeatherService.getProperties().getTimeseries().stream().filter(timeseries -> getDateTime(timeseries.getTime()).isAfter(targetTime)).toList();
         Double metTemperature = timeseriesList.get(0).getData().getInstant().getDetails().getAirTemperature();
         Double metHumidity = timeseriesList.get(0).getData().getInstant().getDetails().getRelativeHumidity();
 
+        return metEntity;
+    }
+
+    private WeatherEntity getMeteoReport(LocalDateTime targetTime) {
         List<LocalDateTime> meteoDateTimes = new ArrayList<>();
         Meteo meteo = meteoClient.getDataFromMeteo();
         for (String stringOfDateTime : meteo.getHourly().getTime()) {
             meteoDateTimes.add(getDateTime(stringOfDateTime));
         }
+
         int index = 1;
-        while (meteoDateTimes.stream().iterator().next().isBefore(targetTime)) {
-            index++;
+        if (meteoDateTimes.size() > 1) {
+            while (meteoDateTimes.get(index).isBefore(targetTime)) {
+                index++;
+            }
         }
-//        List<LocalDateTime> hourlyList =  meteoDateTimes.stream().filter(localDateTime -> localDateTime.isAfter(targetTime)).toList();
+
+
         Double meteoTemperature = meteo.getHourly().getTemperature2m().get(index);
         Integer meteoHumidity = meteo.getHourly().getRelativehumidity2m().get(index);
+        LocalDateTime meteoLocalDateTime = meteoDateTimes.get(index);
+        String source = "Meteo";
 
-        if (smhiTemperature > metTemperature) {
-            bestSource = "SMHI";
-            return smhiEntity;
-        } else {
-            bestSource = "MET";
-            return metEntity;
-        }
+        meteoEntity = new MeteoEntity(meteoTemperature, meteoHumidity, meteoLocalDateTime, source);
 
+        return meteoEntity;
     }
 
 }

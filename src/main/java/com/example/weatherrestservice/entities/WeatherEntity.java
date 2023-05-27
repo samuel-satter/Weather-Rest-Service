@@ -11,12 +11,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 abstract public class WeatherEntity {
-    public Integer temperature;
+    public Double temperature;
     public Integer humidity;
     public LocalDateTime localDateTime;
     public String source;
-
-    @JsonIgnore
-    int hour;
 
 }

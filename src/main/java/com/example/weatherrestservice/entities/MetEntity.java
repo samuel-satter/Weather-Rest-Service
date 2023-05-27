@@ -2,7 +2,7 @@ package com.example.weatherrestservice.entities;
 
 import com.example.weatherrestservice.clients.MetClient;
 
-public class MetEntity extends WeatherEntity{
+public class MetEntity extends WeatherEntity {
 
     MetClient metClient;
 
