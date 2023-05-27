@@ -1,7 +1,7 @@
-package com.example.weatherrestservice.restcontrollers;
+package com.example.weatherrestservice.restcontroller;
 
 
-import com.example.weatherrestservice.entities.WeatherEntity;
+import com.example.weatherrestservice.model.WeatherPrognosis;
 import com.example.weatherrestservice.service.WeatherInformationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,8 +18,8 @@ public class WeatherRestController {
         this.weatherInformationService = weatherInformationService;
     }
 
-    @GetMapping("/api/weather/")
-    public ResponseEntity<WeatherEntity> getBestWeatherReport() {
+    @GetMapping("/api/weather")
+    public ResponseEntity<WeatherPrognosis> getBestWeatherReport() {
         return ResponseEntity.ok().body(weatherInformationService.fetchInformation());
     }
 

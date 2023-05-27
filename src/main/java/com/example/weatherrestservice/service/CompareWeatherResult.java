@@ -1,10 +1,10 @@
 package com.example.weatherrestservice.service;
 
-import com.example.weatherrestservice.entities.WeatherEntity;
+import com.example.weatherrestservice.model.WeatherPrognosis;
 
 public class CompareWeatherResult {
 
-    public WeatherEntity compareWeather(WeatherEntity smhiEntity, WeatherEntity metEntity, WeatherEntity meteoEntity) {
+    public WeatherPrognosis compareWeather(WeatherPrognosis smhiEntity, WeatherPrognosis metEntity, WeatherPrognosis meteoEntity) {
         if (metEntity.getTemperature() > meteoEntity.getTemperature() && metEntity.getTemperature() > smhiEntity.getTemperature()) {
             return metEntity;
         } else if (meteoEntity.getTemperature() > smhiEntity.getTemperature()) {

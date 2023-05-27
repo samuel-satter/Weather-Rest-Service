@@ -1,6 +1,6 @@
-package com.example.weatherrestservice.controllers;
+package com.example.weatherrestservice.controller;
 
-import com.example.weatherrestservice.entities.WeatherEntity;
+import com.example.weatherrestservice.model.WeatherPrognosis;
 import com.example.weatherrestservice.service.WeatherInformationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -19,11 +19,11 @@ public class WeatherController {
 
     @GetMapping("/weather")
     public String getWeatherPage(Model model) {
-        WeatherEntity weatherEntity = weatherInformationService.fetchInformation();
-        model.addAttribute("temperature", weatherEntity.getTemperature());
-        model.addAttribute("humidity", weatherEntity.getHumidity());
-        model.addAttribute("localDateTime", weatherEntity.getLocalDateTime());
-        model.addAttribute("source", weatherEntity.getSource());
+        WeatherPrognosis weatherPrognosis = weatherInformationService.fetchInformation();
+        model.addAttribute("temperature", weatherPrognosis.getTemperature());
+        model.addAttribute("humidity", weatherPrognosis.getHumidity());
+        model.addAttribute("time", weatherPrognosis.getTime());
+        model.addAttribute("source", weatherPrognosis.getSource());
         return "weather.html";
     }
 

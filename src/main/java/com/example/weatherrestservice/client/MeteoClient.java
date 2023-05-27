@@ -1,4 +1,4 @@
-package com.example.weatherrestservice.clients;
+package com.example.weatherrestservice.client;
 
 import com.example.weatherrestservice.meteo.Meteo;
 import org.springframework.stereotype.Service;

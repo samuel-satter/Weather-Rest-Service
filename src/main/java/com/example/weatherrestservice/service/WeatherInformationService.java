@@ -1,10 +1,10 @@
 package com.example.weatherrestservice.service;
 
 
-import com.example.weatherrestservice.clients.MetClient;
-import com.example.weatherrestservice.clients.MeteoClient;
-import com.example.weatherrestservice.clients.SmhiClient;
-import com.example.weatherrestservice.entities.WeatherEntity;
+import com.example.weatherrestservice.client.MetClient;
+import com.example.weatherrestservice.client.MeteoClient;
+import com.example.weatherrestservice.client.SmhiClient;
+import com.example.weatherrestservice.model.WeatherPrognosis;
 import com.example.weatherrestservice.met.MetWeatherService;
 import com.example.weatherrestservice.met.Timeseries;
 import com.example.weatherrestservice.meteo.Meteo;
@@ -42,20 +42,20 @@ public class WeatherInformationService {
         return LocalDateTime.parse(time, DateTimeFormatter.ISO_DATE_TIME);
     }
 
-    public WeatherEntity fetchInformation() {
+    public WeatherPrognosis fetchInformation() {
         LocalDateTime targetTime = LocalDateTime.now().plusDays(1);
 
-        WeatherEntity smhiWeatherEntity = getSmhiReport(targetTime);
+        WeatherPrognosis smhiWeatherPrognosis = getSmhiReport(targetTime);
 
-        WeatherEntity metWeatherEntity = getMetReport(targetTime);
+        WeatherPrognosis metWeatherPrognosis = getMetReport(targetTime);
 
-        WeatherEntity meteoWeatherEntity = getMeteoReport(targetTime);
+        WeatherPrognosis meteoWeatherPrognosis = getMeteoReport(targetTime);
 
-        return new CompareWeatherResult().compareWeather(smhiWeatherEntity, metWeatherEntity, meteoWeatherEntity);
+        return new CompareWeatherResult().compareWeather(smhiWeatherPrognosis, metWeatherPrognosis, meteoWeatherPrognosis);
 
     }
 
-    private WeatherEntity getSmhiReport(LocalDateTime targetTime) {
+    private WeatherPrognosis getSmhiReport(LocalDateTime targetTime) {
         SmhiWebservice smhiWebservice = smhiClient.getDataFromSmhi();
         List<TimeSeries> timeSeriesList = smhiWebservice.getTimeSeries().stream()
                 .filter(timeSeries -> getDateTime(timeSeries.getValidTime()).isAfter(targetTime))
@@ -83,11 +83,11 @@ public class WeatherInformationService {
         LocalDateTime smhiLocalDateTime = getDateTime(timeSeriesList.get(0).getValidTime());
         String smhiSource = "SMHI";
 
-        return new WeatherEntity(smhiTemperature, smhiHumidity, smhiLocalDateTime, smhiSource);
+        return new WeatherPrognosis(smhiTemperature, smhiHumidity, smhiLocalDateTime, smhiSource);
 
     }
 
-    private WeatherEntity getMetReport(LocalDateTime targetTime) {
+    private WeatherPrognosis getMetReport(LocalDateTime targetTime) {
         MetWeatherService metWeatherService = metClient.getDataFromMet();
         List<Timeseries> timeseriesList = metWeatherService.getProperties().getTimeseries().stream()
                 .filter(timeseries -> getDateTime(timeseries.getTime()).isAfter(targetTime))
@@ -100,11 +100,11 @@ public class WeatherInformationService {
         LocalDateTime metLocalDateTime = getDateTime(timeseriesList.get(0).getTime());
         String metSource = "Met";
 
-        return new WeatherEntity(metTemperature, metHumidity, metLocalDateTime, metSource);
+        return new WeatherPrognosis(metTemperature, metHumidity, metLocalDateTime, metSource);
 
     }
 
-    private WeatherEntity getMeteoReport(LocalDateTime targetTime) {
+    private WeatherPrognosis getMeteoReport(LocalDateTime targetTime) {
         List<LocalDateTime> meteoDateTimes = new ArrayList<>();
         Meteo meteo = meteoClient.getDataFromMeteo();
         for (String stringOfDateTime : meteo.getHourly().getTime()) {
@@ -123,7 +123,7 @@ public class WeatherInformationService {
         LocalDateTime meteoLocalDateTime = meteoDateTimes.get(index);
         String source = "Meteo";
 
-        return new WeatherEntity(meteoTemperature, meteoHumidity, meteoLocalDateTime, source);
+        return new WeatherPrognosis(meteoTemperature, meteoHumidity, meteoLocalDateTime, source);
 
     }
 
