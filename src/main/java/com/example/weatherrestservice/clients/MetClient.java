@@ -1,8 +1,6 @@
 package com.example.weatherrestservice.clients;
 
 import com.example.weatherrestservice.met.MetWeatherService;
-import com.example.weatherrestservice.met.Properties;
-import com.example.weatherrestservice.smhi.SmhiWebservice;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;

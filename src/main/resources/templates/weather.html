@@ -2,9 +2,11 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Morgondagens Väder</title>
 </head>
 <body>
-<p th:text="${compareWeather.getBestWeatherReport()}"></p>
+<p th:text=" 'Optimal väderprognos för Liljeholmen från ' + ${source} + ' ' + ${localDateTime}"></p>
+<p th:text=" 'Temperaturen är: ' + ${temperature}"></p>
+<p th:text=" 'Luftfuktigheten är: ' + ${humidity}"></p>
 </body>
 </html>

@@ -1,5 +1,6 @@
 package com.example.weatherrestservice.controllers;
 
+import com.example.weatherrestservice.entities.WeatherEntity;
 import com.example.weatherrestservice.service.WeatherInformationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -16,10 +17,13 @@ public class WeatherController {
         this.weatherInformationService = weatherInformationService;
     }
 
-    @GetMapping("weather")
+    @GetMapping("/weather")
     public String getWeatherPage(Model model) {
-        model.addAttribute(weatherInformationService.addTargetTime());
-        model.addAttribute(weatherInformationService.getBestSource());
+        WeatherEntity weatherEntity = weatherInformationService.fetchInformation();
+        model.addAttribute("temperature", weatherEntity.getTemperature());
+        model.addAttribute("humidity", weatherEntity.getHumidity());
+        model.addAttribute("localDateTime", weatherEntity.getLocalDateTime());
+        model.addAttribute("source", weatherEntity.getSource());
         return "weather.html";
     }
 
